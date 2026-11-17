@@ -368,6 +368,19 @@ selecionados por resumos do catálogo; suas provas não foram auditadas. A leitu
 das convenções booleanas não certifica o restante do manuscrito. Consulte o
 registro de fontes para distinguir referência, adaptação e validação executada.
 
+---------------------------------------------
+Como transformar fórmulas matemáticas em experimentos que podemos executar, visualizar e conferir?
+Foi com essa proposta que desenvolvi a FGCL — Fourier, Geometry, Computation & Logic, uma biblioteca em Python para explorar análise espectral, geometria, métodos numéricos e funções booleanas.
+Uma aplicação acadêmica é o FGCL Route Lab, inspirado no visualizador da CVRPLib da PUC-Rio. O programa permite estudar roteamento de veículos com capacidade limitada e janelas de tempo, acompanhando:
+🔹 Rotas e deslocamentos em um mapa interativo;
+🔹 Distâncias, cargas, horários de atendimento e espera;
+🔹 Comparações entre vizinho mais próximo, economias de Clarke–Wright e melhoria local 2-opt;
+🔹 Fórmulas utilizadas, exemplos numéricos e referências.
+Nesse exemplo, o FGCL também aplica filtragem de Bochner–Riesz à sequência de coordenadas das rotas, permitindo explorar sua representação espectral. Essa curva é um diagnóstico visual: não substitui as visitas aos clientes nem altera o custo da solução.
+Em uma demonstração sintética com 80 clientes, o melhor candidato encontrado apresentou 8 rotas e distância total de 855 unidades, contra 1.016 unidades do baseline de vizinho mais próximo.
+Esses números pertencem a uma configuração específica. A viabilidade foi verificada, mas não há prova de ótimo nem evidência de superioridade geral.
+O objetivo acadêmico é conectar teoria, implementação e análise crítica: mostrar de onde vêm as fórmulas, testar suas propriedades e registrar configurações, seeds e resultados para permitir a reprodução dos experimentos.
+---------------------------------------------
 ## Licenciamento
 
 Uma licença de distribuição ainda não foi escolhida pelo titular do projeto.
