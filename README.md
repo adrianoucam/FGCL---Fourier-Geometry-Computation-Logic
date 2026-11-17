@@ -1,2 +1,376 @@
-# FGCL---Fourier-Geometry-Computation-Logic
-FGCL - Fourier, Geometry, Computation &amp; Logic
+# FGCL — Fourier, Geometry, Computation & Logic
+
+**Biblioteca Python para análise espectral, computação geométrica e exploração de funções lógicas, com experimentos numéricos reproduzíveis.**
+
+O nome reúne os quatro eixos da biblioteca: **F**ourier, **G**eometry,
+**C**omputation e **L**ogic.
+
+O FGCL 0.3.0 oferece operadores NumPy que podem ser usados separadamente em
+sinais 1D, imagens, volumes e pequenas tabelas lógicas. Também inclui avaliação
+de classificadores existentes, controles de distorção, ferramentas opcionais
+de explicabilidade e demonstrações geométricas/SAT.
+
+> **Escopo científico:** as implementações são experimentos finitos e aproximações
+> numéricas. Não constituem provas ou reproduções dos contraexemplos de Cairo e
+> Cairo–Zhang, nem validam os teoremas alegados nos preprints de `openai/math`.
+> Aplicações em ML, deepfake, XAI e tomografia exigem validação própria.
+
+## O que está disponível
+
+### Aplicação: FGCL Route Lab
+
+Visualizador local de CVRP/VRPTW inspirado na CVRPLib, com mapa interativo,
+animação, importação de instâncias/soluções, comparação de heurísticas e
+painel acadêmico de fórmulas. Usa FGCL para diagnóstico espectral e reprodução.
+
+```bash
+python -m fgcl.route_app --port 8765
+```
+
+Execute na pasta que contém `pyproject.toml`. Neste checkout Windows:
+`cd /d E:\bc_niteroi_rj\fgcl-math\fgcl` (CMD). A pasta pai `fgcl-math`
+não é a raiz instalável. Se seu executável é `python3`, use-o nos comandos.
+
+Abra [http://127.0.0.1:8765](http://127.0.0.1:8765).
+Veja [as fórmulas, fontes, exemplos e limitações](docs/ROUTING.md).
+Os candidatos são heurísticos com viabilidade verificada; não há prova de ótimo.
+
+![Prévia do FGCL Route Lab](docs/route-lab-preview.jpg)
+
+### Módulos da biblioteca
+
+| Recurso | Onde está | Exemplos de uso |
+|---|---|---|
+| Extensão finita de Fourier e adjunto, com processamento em blocos | `fgcl.fourier.FourierExtension` | Campos de ondas e amostragem espectral irregular |
+| Filtros Bochner–Riesz em N dimensões | `fgcl.fourier` | Sinais, imagens, volumes e controles de frequência |
+| Fourier no cubo booleano: Walsh, energia por grau e influências | `fgcl.boolean` | Paridade, sensibilidade e pequenas funções lógicas |
+| Descritores FFT/DCT e perturbações com MSE casado | `fgcl.spectral` | Caracterização espectral e robustez de modelos |
+| Avaliação de probabilidades e bootstrap por grupo | `fgcl.benchmark`, `fgcl.metrics` | Comparações de classificadores por vídeo/identidade |
+| Saliency e métodos opcionais do Captum | `fgcl.xai` | Estabilidade de atribuições para a mesma classe |
+| Metadados e hashes de experimentos | `fgcl.reproducibility` | Rastreabilidade de configurações e entradas |
+| Projeções geométricas finitas e SAT plantado com testemunha | `fgcl.core`, `fgcl.sat` | Ensino e testes de infraestrutura |
+
+## Instalação
+
+Requer **Python >= 3.10** e **NumPy >= 1.24, < 3**. A instalação básica funciona
+em CPU. A suíte e o exemplo foram executados localmente em Python 3.12 e,
+no ambiente do usuário, em Python 3.15; isso não certifica todos os ambientes
+ou todas as combinações de dependências opcionais.
+
+Após clonar ou baixar este repositório, entre na pasta que contém `pyproject.toml`:
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+# Linux/macOS: source .venv/bin/activate
+python -m pip install -e .
+```
+
+Dependências opcionais:
+
+```bash
+python -m pip install -e ".[images]"  # Pillow e SciPy; necessário para a suíte completa
+python -m pip install -e ".[torch]"   # integração com modelo PyTorch existente
+python -m pip install -e ".[xai]"     # métodos opcionais do Captum
+```
+
+A DCT possui alternativa NumPy e a AUC é calculada com NumPy. A leitura de imagens
+no benchmark requer Pillow. Instale uma versão de PyTorch compatível com seu
+ambiente se for usar esses recursos. A biblioteca não baixa checkpoints e não
+inicia treinamento automaticamente.
+
+## Comece por um experimento reproduzível
+
+Na raiz do repositório, execute:
+
+```bash
+python -m examples.library_smoke --seed 42 --out results/library.json
+python -m unittest discover -s tests -v
+```
+
+Se seu executável se chama `python3`, use-o no lugar de `python`. Não execute
+`discover -s tests` de dentro da pasta `tests`.
+
+O exemplo gera um JSON com seed, parâmetros, hashes SHA-256 das entradas,
+versões de Python/NumPy/FGCL, hardware, tempo e métricas. Na execução de referência:
+
+| Medida em dados sintéticos | Resultado aproximado |
+|---|---:|
+| MSE do sinal contaminado contra a referência limpa | 0,03125 |
+| MSE após filtro Bochner–Riesz | 0,004768 |
+| Erro máximo da extensão contra `numpy.fft.ifft` | 2 × 10⁻¹⁵ |
+| Erros de Parseval e inversão Walsh | 0 na precisão utilizada |
+
+São verificações desse exemplo e dessa configuração, sem garantia de melhoria
+em outras entradas. Tempos e arredondamentos variam entre ambientes. A suíte da
+versão 0.3 contém 28 testes, incluindo identidades, roteamento, baselines e falhas esperadas.
+
+## Fórmulas, origem e funcionamento
+
+### 1. Extensão de Fourier
+
+O operador contínuo de extensão associa uma densidade sobre uma superfície a
+um campo oscilatório. No FGCL, o chamador fornece nós e pesos para a soma finita:
+
+$$
+(E_q f)(x_m)=\sum_{j=1}^{N}q_j f_j\exp(2\pi i\,x_m\cdot\xi_j).
+$$
+
+Aqui, $\xi_j$ são os nós, $x_m$ os pontos de avaliação e $q_j>0$ os pesos de
+quadratura. A fase positiva é uma convenção explícita. O adjunto euclidiano é:
+
+$$
+(E_q^*g)_j=q_j\sum_{m=1}^{M}g_m\exp(-2\pi i\,x_m\cdot\xi_j).
+$$
+
+**Origem:** extensão/restrição de Fourier é uma construção clássica. A linha foi
+selecionada na triagem do catálogo de
+[extensão para superfícies positivamente curvas](https://github.com/openai/math/tree/main/preprints/Diagonal-Fourier-extension-for-positively-curved-surfaces-in-three-dimensions-September-24-2026).
+O FGCL implementa uma quadratura genérica, não o argumento ou as estimativas
+desse manuscrito. As convenções da DFT de referência estão na
+[documentação NumPy](https://numpy.org/doc/stable/reference/routines.fft.html).
+
+```python
+import numpy as np
+from fgcl import FourierExtension
+
+n = 32
+nodes = np.arange(n)[:, None]             # [N, dimensão]
+targets = (np.arange(n) / n)[:, None]     # [M, dimensão]
+values = np.random.default_rng(42).normal(size=n)
+
+extension = FourierExtension(nodes, targets, weights=np.full(n, 1/n),
+                             block_size=8)
+field = extension.apply(values)
+adjoint_field = extension.adjoint(field)
+
+# Nesta grade e com estes pesos, a soma coincide com a IFFT.
+print(np.max(np.abs(field - np.fft.ifft(values))))
+```
+
+Os pesos omitidos valem 1. O adjunto não é uma inversa. O custo é O(MNd),
+com matriz temporária O(block_size × N); não é NUFFT. O chamador controla o
+erro de quadratura e os limites do domínio.
+
+### 2. Filtros Bochner–Riesz
+
+O multiplicador clássico, com corte $c>0$ e ordem $\delta\geq0$, é:
+
+$$
+m_{c,\delta}(\xi)=\left(1-\frac{|\xi|^2}{c^2}\right)_+^\delta,
+\qquad T_{c,\delta}f=\mathcal F^{-1}(m_{c,\delta}\,\mathcal F f).
+$$
+
+Para ordem zero, o FGCL usa o indicador da bola **aberta** $|\xi|<c$,
+excluindo a fronteira. A frequência é dada em ciclos por unidade de espaçamento.
+
+**Origem:** fórmula clássica de Bochner–Riesz, apresentada, por exemplo, nas
+[notas de análise harmônica de Terence Tao](https://www.math.ucla.edu/~tao/247a.1.06f/notes4.pdf).
+O [preprint sobre multiplicadores em três dimensões](https://github.com/openai/math/tree/main/preprints/Bochner-Riesz-Multipliers-in-Three-Dimensions-September-24-2026)
+motivou a seleção dessa família, por meio do catálogo. A implementação usa FFT
+em grades periódicas de dimensão arbitrária; não implementa ou verifica a prova.
+
+```python
+import numpy as np
+from fgcl import bochner_riesz_filter
+
+t = np.arange(64) / 64
+signal = np.cos(2*np.pi*2*t) + .25*np.cos(2*np.pi*25*t)
+filtered = bochner_riesz_filter(signal, cutoff=.2, order=1.)
+
+image = np.random.default_rng(42).random((32, 48, 3))
+filtered_image = bochner_riesz_filter(image, axes=(0, 1))
+
+volume = np.ones((16, 20, 24))
+filtered_volume = bochner_riesz_filter(volume, spacing=(1., 1., 2.))
+```
+
+`axes=None` transforma todos os eixos; para imagens HWC, passe `(0,1)`.
+Não há clipping nem normalização automática de intensidades. O custo é o da FFT,
+O(P log P), e a memória é O(P). A periodicidade pode causar artefatos nas bordas;
+padding e avaliação de erro ficam a cargo do experimento.
+
+### 3. Fourier booleano e transformada de Walsh
+
+Para uma função sobre $\mathbb F_2^d$, com $N=2^d$:
+
+$$
+\widehat f(s)=\frac1N\sum_{x\in\mathbb F_2^d} f(x)(-1)^{s\cdot x},
+\qquad f(x)=\sum_s\widehat f(s)(-1)^{s\cdot x}.
+$$
+
+O produto $s\cdot x$ é calculado módulo 2. Parseval e energia por grau são:
+
+$$
+\sum_s|\widehat f(s)|^2=\frac1N\sum_x|f(x)|^2,
+\qquad W_k=\sum_{|s|=k}|\widehat f(s)|^2.
+$$
+
+A energia de mudança da coordenada $i$ é:
+
+$$
+I_i=\frac14\mathbb E_x|f(x)-f(x\oplus2^i)|^2
+=\sum_{s:s_i=1}|\widehat f(s)|^2.
+$$
+
+Ela coincide com a probabilidade de mudança usual para funções em
+$\{-1,+1\}$. Para entradas em $\{0,1\}$, a interpretação exige a conversão apropriada.
+
+**Origem:** identidades clássicas, também descritas explicitamente na seção
+[Binary linear algebra and Fourier analysis do preprint Unique Games](https://github.com/openai/math/blob/main/preprints/The-Unique-Games-Theorem-September-23-2026/build/sections/01-preliminaries.tex).
+Esse trecho foi consultado; nenhum teorema de complexidade ou redução do
+manuscrito foi implementado.
+
+```python
+import numpy as np
+from fgcl import boolean_spectrum, walsh_transform
+
+# Paridade dos bits 0 e 2; índice inteiro usa o bit menos significativo primeiro.
+truth = np.array([(-1)**((x & 5).bit_count()) for x in range(16)])
+report = boolean_spectrum(truth)
+restored = walsh_transform(report['coefficients'], inverse=True)
+
+print(report['degree_energy'])   # [0, 0, 1, 0, 0]
+print(report['influences'])      # [1, 0, 1, 0]
+assert np.allclose(restored, truth)
+```
+
+A transformada custa O(N log N), com N potência de dois. A tabela completa custa
+2^d posições: não é um método escalável para SAT geral. O limite default de
+`max_size` é 2^20 elementos e pode ser configurado pelo chamador.
+
+### 4. Máscaras positivas, FFT/DCT e perturbações
+
+A variante histórica `cairo_positive` parte de um kernel real suavizado $h$:
+
+$$
+m=\frac{|\operatorname{FFT}(h)|^2}{\max|\operatorname{FFT}(h)|^2+10^{-12}},
+\qquad y=\operatorname{clip}_{[0,1]}
+\operatorname{Re}\operatorname{IFFT}\big(((1-a)+am)\operatorname{FFT}(x)\big).
+$$
+
+A não negatividade de $m$ e sua simetria seguem da construção com espectro de
+potência de um kernel real. A discretização, suavização, normalização, mistura
+e clipping são escolhas do FGCL. O nome da variante indica inspiração; não é a
+construção combinatória de Cairo.
+
+**Contexto original:** [Hannah Cairo, 2025](https://arxiv.org/abs/2502.06137v2) e
+[Cairo & Zhang, 2025](https://arxiv.org/abs/2512.08064v1). Os exemplos de
+hipercubo/reticulado do FGCL são analogias pedagógicas, sem estimativas de
+normas maximais ou reprodução dos contraexemplos contínuos.
+
+Os descritores usam energias FFT e DCT-II por bandas radiais, por canal,
+normalizadas pela energia total e transformadas por `log1p`. A DCT-II ortonormal
+segue a [convenção documentada pelo SciPy](https://docs.scipy.org/doc/scipy/reference/generated/scipy.fft.dct.html),
+com alternativa NumPy testada contra a definição em cossenos.
+
+```python
+import numpy as np
+from fgcl.spectral import spectral_features, match_mse
+
+image = np.random.default_rng(42).random((32, 48, 3))
+features = spectral_features(image)  # 24 valores com bandas default e RGB
+altered, strength, mse, reachable = match_mse(
+    image, method='lowpass', target_mse=.001, seed=42)
+print(features.shape, mse, reachable)
+```
+
+O controle usa MSE médio entre todos os elementos, incluindo canais. MSE não é
+uma métrica perceptual; clipping altera a distorção. `reachable=False` sinaliza
+que a variante não alcançou o alvo dentro da tolerância. Bochner–Riesz ainda não
+está integrado ao mecanismo de variantes com MSE casado.
+
+## Avaliação de um classificador existente
+
+O benchmark recebe uma função que retorna o vetor completo de probabilidades
+na ordem original dos logits do checkpoint. Não ordene os nomes de classes
+alfabeticamente se a ordem do treinamento for diferente.
+
+```csv
+path,label,group,split
+images/frame001.png,real,video001,test
+images/frame002.png,fake,video002,test
+```
+
+Os caminhos relativos são resolvidos a partir do CSV. `group` representa a
+origem por vídeo/identidade e todas as linhas devem ter `split=test`.
+
+```python
+from fgcl.benchmark import evaluate_manifest
+
+# Defina predictor(rgb_float_hwc) -> vetor de probabilidades normalizado.
+# Use um modelo existente e preserve seu pré-processamento e ordem de classes.
+# report = evaluate_manifest(
+#     'test_manifest.csv', predictor, 'results/benchmark',
+#     classes=['real', 'fake'], methods=['lowpass', 'random_positive'],
+#     target_mse=.001, seed=42)
+```
+
+O benchmark gera `predictions.csv` e `metrics.json` com acurácia, F1-macro,
+ROC-AUC OVR, flip rate, MSE e bootstrap pareado por grupo. A separação entre
+train/val/test precisa ser verificada pelo usuário: o loader não conhece a
+procedência do treinamento. Não inferir significância pelo número de frames.
+EER, agregação por vídeo, SSIM/LPIPS e controles JPEG ainda são possibilidades
+futuras, não recursos já disponíveis. Veja [o guia v0.2](README_v0.2.md).
+
+## Registro de experimentos
+
+```python
+import numpy as np
+from fgcl import bochner_riesz_filter
+from fgcl.reproducibility import experiment_record
+
+seed = 42
+signal = np.random.default_rng(seed).normal(size=64)
+with experiment_record('results/filter.json', seed=seed,
+                       config={'cutoff': .2, 'order': 1.},
+                       inputs={'signal': signal},
+                       sources=['oai-br-2026']) as metrics:
+    filtered = bochner_riesz_filter(signal, cutoff=.2, order=1.)
+    metrics['mse_vs_identity'] = float(np.mean((filtered-signal)**2))
+```
+
+O registro é opt-in. Use caminhos distintos para execuções concorrentes e
+métricas JSON finitas. Os hashes cobrem dtype, shape e bytes dos arrays; não
+substituem hashes de datasets, checkpoints ou documentos externos. O gerador
+aleatório deve ser criado explicitamente pelo chamador.
+
+## Ideias de aplicação e pesquisas futuras
+
+As linhas abaixo são possibilidades, sem desempenho demonstrado em dados reais:
+
+| Situação | Experimento possível | Controle necessário |
+|---|---|---|
+| Áudio e sensores | Atenuar bandas e medir preservação de componentes | Referência limpa, identidade e filtros convencionais |
+| Imagens e deepfake | Testar robustez a alterações espectrais | MSE casado, métricas perceptuais e splits por origem |
+| Volumes 3D | Estudar filtragem com voxels anisotrópicos | Espaçamento físico explícito e controle de bordas |
+| Ondas e geometria | Aproximar campos por quadratura em curvas/superfícies | Refinamento de nós e solução de referência |
+| XAI | Comparar atribuições antes/depois de perturbações | Mesma classe alvo, pré-processamento e distorção |
+| Pequenas funções lógicas | Medir paridade, grau e sensibilidade | Enumeração direta e funções conhecidas |
+| Tomografia | Futuramente comparar vistas esparsas em phantoms | Implementação Radon, referência e erro de reconstrução |
+| Ensino | Visualizar Parseval, adjuntos e filtros | Exemplos pequenos e normalizações explícitas |
+
+O FGCL não inclui reconstrução tomográfica, NUFFT, fusão ConvNeXt+FFT/DCT
+treinável ou solver CDCL integrado. SAT é relatado apenas com testemunha validada;
+UNSAT requer prova ou solver certificado; timeout é UNKNOWN.
+
+## Documentação e desenvolvimento
+
+- [API, configurações, custos e limitações](docs/LIBRARY.md)
+- [Fontes das ideias e nível de leitura dos preprints](docs/SOURCES.md)
+- [Guia de consulta para o Codex](CODEX_BIBLIOTECA.md)
+- [Como contribuir](CONTRIBUTING.md)
+- [Preparação e publicação no GitHub](docs/GITHUB.md)
+
+A revisão de `openai/math` foi seletiva. Extensão e Bochner–Riesz foram
+selecionados por resumos do catálogo; suas provas não foram auditadas. A leitura
+das convenções booleanas não certifica o restante do manuscrito. Consulte o
+registro de fontes para distinguir referência, adaptação e validação executada.
+
+## Licenciamento
+
+Uma licença de distribuição ainda não foi escolhida pelo titular do projeto.
+Até que ela seja incluída, este repositório não deve ser apresentado como tendo
+licença MIT, Apache ou outra licença aberta. As referências científicas não
+transferem ao FGCL direitos sobre código ou artefatos de terceiros.
