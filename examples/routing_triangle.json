@@ -1,0 +1,11 @@
+{
+  "name": "Triângulo didático com janelas",
+  "coordinates": [[0, 0], [3, 0], [3, 4]],
+  "demands": [0, 2, 3],
+  "capacity": 5,
+  "distance": "EXACT_2D",
+  "ids": [0, 1, 2],
+  "vehicles": 2,
+  "windows": [[0, 30], [10, 12], [0, 30]],
+  "service": [0, 2, 1]
+}

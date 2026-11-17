@@ -1,0 +1,224 @@
+{
+  "instance": {
+    "name": "Triângulo didático com janelas",
+    "coordinates": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        3.0,
+        0.0
+      ],
+      [
+        3.0,
+        4.0
+      ]
+    ],
+    "demands": [
+      0.0,
+      2.0,
+      3.0
+    ],
+    "capacity": 5.0,
+    "windows": [
+      [
+        0.0,
+        30.0
+      ],
+      [
+        10.0,
+        12.0
+      ],
+      [
+        0.0,
+        30.0
+      ]
+    ],
+    "service": [
+      0.0,
+      2.0,
+      1.0
+    ],
+    "distance": "EXACT_2D",
+    "ids": [
+      0,
+      1,
+      2
+    ],
+    "vehicles": 2
+  },
+  "solution": {
+    "status": "FEASIBLE_HEURISTIC",
+    "optimality_proven": false,
+    "objective": "routes_then_distance",
+    "method": "nearest_neighbor",
+    "feasible": true,
+    "violations": [],
+    "route_count": 1,
+    "cost": 12.0,
+    "waiting": 7.0,
+    "duration": 22.0,
+    "routes": [
+      {
+        "nodes": [
+          0,
+          1,
+          2,
+          0
+        ],
+        "customers": 2,
+        "load": 5.0,
+        "cost": 12.0,
+        "departure": 0.0,
+        "return": 22.0,
+        "waiting": 7.0,
+        "duration": 22.0,
+        "visits": [
+          {
+            "node": 0,
+            "arrival": 0.0,
+            "start": 0.0,
+            "departure": 0.0,
+            "waiting": 0.0,
+            "load": 0.0
+          },
+          {
+            "node": 1,
+            "arrival": 3.0,
+            "start": 10.0,
+            "departure": 12.0,
+            "waiting": 7.0,
+            "load": 2.0
+          },
+          {
+            "node": 2,
+            "arrival": 16.0,
+            "start": 16.0,
+            "departure": 17.0,
+            "waiting": 0.0,
+            "load": 5.0
+          },
+          {
+            "node": 0,
+            "arrival": 22.0,
+            "start": 22.0,
+            "departure": 22.0,
+            "waiting": 0.0,
+            "load": 5.0
+          }
+        ],
+        "feasible": true,
+        "violations": [],
+        "spectral": {
+          "smooth_coordinates": [
+            [
+              2.0,
+              1.3333333333333333
+            ],
+            [
+              2.0,
+              1.3333333333333333
+            ],
+            [
+              2.0,
+              1.3333333333333333
+            ],
+            [
+              2.0,
+              1.3333333333333333
+            ]
+          ],
+          "coordinate_mse": 2.777777777777778,
+          "residual_energy_ratio": 1.0,
+          "cutoff": 0.2,
+          "order": 1.0,
+          "interpretation": "Diagnóstico por índice de visita; curva suavizada não é uma rota viável."
+        }
+      }
+    ],
+    "baselines": [
+      {
+        "method": "nearest_neighbor",
+        "feasible": true,
+        "route_count": 1,
+        "cost": 12.0,
+        "waiting": 7.0
+      },
+      {
+        "method": "nearest_neighbor+2opt",
+        "feasible": true,
+        "route_count": 1,
+        "cost": 12.0,
+        "waiting": 7.0
+      },
+      {
+        "method": "clarke_wright",
+        "feasible": true,
+        "route_count": 1,
+        "cost": 12.0,
+        "waiting": 0.0
+      },
+      {
+        "method": "clarke_wright+2opt",
+        "feasible": true,
+        "route_count": 1,
+        "cost": 12.0,
+        "waiting": 0.0
+      }
+    ],
+    "capacity_lower_bound": 1,
+    "limitations": [
+      "Heurísticas não certificam ótimo ou inviabilidade global.",
+      "Distância euclidiana, frota homogênea, um depósito, velocidade 1.",
+      "Análise espectral não altera a solução ou seu custo."
+    ]
+  },
+  "provenance": {
+    "schema_version": 1,
+    "started_utc": "2026-11-17T13:31:51.286357+00:00",
+    "seed": 42,
+    "config": {
+      "seed": 42,
+      "capacity": 5.0,
+      "distance": "EXACT_2D",
+      "improve": true,
+      "cutoff": 0.2,
+      "source": "uploaded",
+      "vehicles": 2,
+      "solution_numbering": "internal"
+    },
+    "sources": [
+      "clarke-wright-1964",
+      "cvrplib-conventions",
+      "fgcl-bochner-riesz"
+    ],
+    "input_sha256": {
+      "coordinates": "006ccf5088f767e4743a0ef4320098bfc303d3f1ed57f7d6ee089c396668b156",
+      "demands": "2eaf8982020520331b09650c514a0cb83ddcbb226ef2e32eb14f40b8ef66a620",
+      "service": "4486e2e5098647723bd41cda5d14b0428b7e557815bba90dc2a91a0ef13c8007",
+      "windows": "adff127acfbe34e66d1abcb287d48465866a6dd9ce227d302ae52c80e4b6745c",
+      "instance_text": "d9fc8a3d52b2ea6214cb5b614bf239f6f07f6c4abb359d694fba1302e863698a"
+    },
+    "versions": {
+      "fgcl": "0.3.0",
+      "numpy": "2.2.3",
+      "python": "3.12.9 (main, Feb 13 2025, 09:16:23)  [GCC UCRT 14.2.0 64 bit (AMD64)]"
+    },
+    "hardware": {
+      "platform": "Windows-10-10.0.19045-SP0",
+      "machine": "AMD64",
+      "processor": "Intel64 Family 6 Model 79 Stepping 1, GenuineIntel",
+      "backend": "numpy-cpu"
+    },
+    "metrics": {
+      "status": "FEASIBLE_HEURISTIC",
+      "method": "nearest_neighbor",
+      "route_count": 1,
+      "cost": 12.0,
+      "feasible": true
+    },
+    "status": "completed",
+    "elapsed_seconds": 0.0012308130008023
+  }
+}

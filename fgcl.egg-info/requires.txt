@@ -1,0 +1,15 @@
+numpy<3,>=1.24
+
+[images]
+pillow>=9
+scipy>=1.10
+
+[torch]
+torch>=2
+torchvision>=0.15
+pillow>=9
+scipy>=1.10
+
+[xai]
+torch>=2
+captum>=0.7

@@ -1,0 +1,3 @@
+path,label,group,split
+/path/to/test/original/video001/frame0001.png,original,video001,test
+/path/to/test/FaceSwap/video002/frame0001.png,FaceSwap,video002,test

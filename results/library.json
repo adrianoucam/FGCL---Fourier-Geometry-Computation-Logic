@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "started_utc": "2026-11-17T11:50:36.806846+00:00",
+  "seed": 42,
+  "config": {
+    "n": 32,
+    "cutoff": 0.2,
+    "order": 1.0,
+    "block_size": 8,
+    "limitation": "finite periodic grids and exhaustive truth tables; no theorem validation"
+  },
+  "sources": [
+    "oai-br-2026",
+    "oai-extension-2026",
+    "oai-ug-conventions-2026"
+  ],
+  "input_sha256": {
+    "clean": "8d7ba40561ad9058303aa9432812c06af68d1922a73d23b4979ae14909059be2",
+    "noisy": "4d39c9c3d432e0a1c528174e2c820f6790bcdcc68cc3aed6fa73d85656ed8420",
+    "truth": "904e6a72aa1a423d65ae6b36c84f6f75a0162e0d698b166731632ec227e0d54a",
+    "nodes": "d86861b8fe3f402669bca23d2769e9ea5476e4b80cd3aac24c0e46dfed101be5",
+    "targets": "221cbfeac8338b8273c2a18f1b352d1b750f0b043384829e175bb3b72f4e3181",
+    "weights": "0373080b5f13b0e527e1f45d84b42b3d1ad5eecf7bda028e67daa952d4064154",
+    "values": "e9eadc68e96dfd960cf0f931a5c92612c5258d7dcce08746ed16332a9f83f389"
+  },
+  "versions": {
+    "fgcl": "0.3.0",
+    "numpy": "2.5.5",
+    "python": "3.15.2 (tags/v3.15.2:5e58eaa, Oct 25 2026, 17:27:03) [MSC v.1951 64 bit (AMD64)]"
+  },
+  "hardware": {
+    "platform": "Windows-10-10.0.19045-SP0",
+    "machine": "AMD64",
+    "processor": "Intel64 Family 6 Model 79 Stepping 1, GenuineIntel",
+    "backend": "numpy-cpu"
+  },
+  "metrics": {
+    "identity_mse": 0.03125000000000001,
+    "bochner_riesz_mse": 0.004768371582031236,
+    "extension_ifft_max_error": 2.0175840826237853e-15,
+    "walsh_parseval_error": 0.0,
+    "walsh_inverse_max_error": 0.0,
+    "boolean_degree_energy": [
+      0.015625,
+      0.03125,
+      0.25,
+      0.59375,
+      0.109375,
+      0.0
+    ]
+  },
+  "status": "completed",
+  "elapsed_seconds": 0.005529264000415424
+}
